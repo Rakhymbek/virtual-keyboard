@@ -1,0 +1,22 @@
+/*Google fonts*/
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+/* Basic css styles */
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+ul,
+p {
+  margin: 0;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
