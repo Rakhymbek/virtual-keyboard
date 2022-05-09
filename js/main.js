@@ -1,6 +1,22 @@
-let textArea = document.querySelector('textarea');
-const activeBtns = ["Backspace", "Caps", "Enter", "Space", "Del", "Ctrl", "ShiftL", "ShiftR", "Tab", "win","AltL", "AltR", "EN", "RU"];
+let taskTitle = document.createElement("h1");
+taskTitle.classList.add("task__title");
+taskTitle.innerHTML = "RSS Virtual Keyboard";
+document.body.append(taskTitle);
 
+let clue = document.createElement("p");
+clue.classList.add("clue");
+clue.innerHTML = `The virtual keyboard is able to switch between two language layouts (<b>ControlLeft</b> + <b>AltLeft</b>)`;
+document.body.append(clue);
+
+let textArea = document.createElement("textarea");
+textArea.classList.add("board");
+document.body.append(textArea);
+
+
+
+const activeBtns = ["Backspace", "Caps", "Enter", "Space", "Del", "Ctrl", "ShiftL", "ShiftR", "Tab", "win","AltL", "AltR", "EN", "RU"];
+let lang = localStorage.getItem('lang') || 'en';
+console.log(lang);
 let keyLayoutRu = [
     "ё","1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace",
     "Tab","й", "ц", "у", "к", "е", "н", "г", "ш", "щ", "з", "х", "ъ", "\\", "Del",
@@ -23,6 +39,14 @@ let shiftEng = [
     "Caps", "A", "S", "D", "F", "G", "H", "J", "K", "L", ":", '"', "Enter",
     "ShiftL", "Z", "X", "C", "V", "B", "N", "M", "<", ">", "?", "▲", "ShiftR",
     "Ctrl", "EN", "AltL", "Space", "AltR", "◀", "▼", "▶", "Ctrl"
+];
+
+let shiftRu = [
+    "Ё","!", '"', "№", ";", "%", ":", "?", "*", "(", ")", "_", "+", "Backspace",
+    "Tab","Й", "Ц", "У", "К", "Е", "Н", "Г", "Ш", "Щ", "З", "Х", "Ъ", "/", "Del",
+    "Caps", "Ф", "Ы", "В", "А", "П", "Р", "О", "Л", "Д", "Ж", 'Э', "Enter",
+    "ShiftL", "Я", "Ч", "С", "М", "И", "Т", "Ь", "Б", "Ю", ",", "▲", "ShiftR",
+    "Ctrl", "RU", "AltL", "Space", "AltR", "◀", "▼", "▶", "Ctrl"
 ];
 
 const Keyboard = {
@@ -48,6 +72,7 @@ const Keyboard = {
   init() {
     this.elements.main = document.createElement("div");
     this.elements.keysContainer = document.createElement("div");
+    
 
     this.elements.main.classList.add("keyboard");
     this.elements.keysContainer.classList.add("keyboard__keys");
@@ -58,6 +83,7 @@ const Keyboard = {
     this.elements.main.append(this.elements.keysContainer);
     document.body.append(this.elements.main);
 
+    
 
     document.querySelectorAll(".board").forEach(elem => {
         elem.addEventListener("focus", () => {
@@ -74,16 +100,15 @@ const Keyboard = {
   },
 
   createKeys() {
-      const fragment = document.createDocumentFragment();
-      let keyLayout = [
-        "`","1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace",
-        "Tab","q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "\\", "Del",
-        "Caps", "a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "'", "Enter",
-        "ShiftL", "z", "x", "c", "v", "b", "n", "m", ",", ".", "/", "▲", "ShiftR",
-        "Ctrl", "EN", "AltL", "Space", "AltR", "◀", "▼", "▶", "Ctrl"
-      ];
+    const fragment = document.createDocumentFragment();
+    let keyLayoutLang;
+    if(lang === "RU") {
+        keyLayoutLang = keyLayoutRu;
+    }else {
+        keyLayoutLang = keyLayout;
+    }
 
-      keyLayout.forEach(key => {
+    keyLayoutLang.forEach(key => {
         const keyElement = document.createElement("button");
         const insertLineBreak = ["Backspace", "Del", "Enter", "ShiftR"].indexOf(key) !== -1;
         keyElement.setAttribute("type", "button");
@@ -184,6 +209,14 @@ const Keyboard = {
                     console.log(keyElement);
                 });
                 break;
+            case "RU":
+                keyElement.classList.add("lang");
+                keyElement.textContent = key;
+                keyElement.addEventListener("click", () => {
+                    this.changeLang(keyElement);
+                    console.log(keyElement);
+                });
+                break;
             case "Tab":
                 keyElement.classList.add("keyboard__key--dark");
                 keyElement.textContent = key;
@@ -240,22 +273,36 @@ const Keyboard = {
 
   toggleShift() {
     let keys = document.querySelectorAll('.keyboard__key');
+    let lang = document.querySelector('.lang');
+    let shiftLang;
+    let keyLayoutLang;
+    if(lang.textContent === "RU") {
+        shiftLang = shiftRu;
+        keyLayoutLang = keyLayoutRu;
+    }else {
+        shiftLang = shiftEng;
+        keyLayoutLang = keyLayout;
+    }
     for(let i = 0; i < this.elements.keys.length; i++) {
-        keys[i].textContent = this.properties.shift ? shiftEng[i] : keyLayout[i];
+        keys[i].textContent = this.properties.shift ? shiftLang[i] : keyLayoutLang[i];
     }
   },
 
   changeLang(keyElement) {
     let keys = document.querySelectorAll('.keyboard__key');
+    
     if(keyElement.textContent === 'EN') {
         for(let i = 0; i < this.elements.keys.length; i++) {
             keys[i].textContent = keyLayoutRu[i];
+            lang = "RU";
         }
     }else {
         for(let i = 0; i < this.elements.keys.length; i++) {
             keys[i].textContent = keyLayout[i];
+            lang = "EN";
         }
     }
+    localStorage.setItem('lang', lang);
   },
 
   open(initialVal, oninput) {
@@ -266,10 +313,6 @@ const Keyboard = {
 
 window.addEventListener("DOMContentLoaded", () => {
   Keyboard.init();
-    Keyboard.open("", (currentVal) => {
-        console.log(currentVal);
-    });
-
 });
 
 const keyboardCodes = [
@@ -304,7 +347,7 @@ document.body.addEventListener('keydown', (event) => {
         if (event.code === "AltLeft" || event.code === "AltRight") {
             event.preventDefault();
         }
-        if(event.altKey && event.ctrlKey) {
+        if(event.altKey && event.ctrlKey && event.code !== "AltRight") {
             Keyboard.changeLang(lang);
         }
         if(event.shiftKey) {
@@ -316,7 +359,6 @@ document.body.addEventListener('keydown', (event) => {
             Keyboard.toggleShift();
             keys[i].classList.toggle("keyboard__key--active--on");
         }
-        
       }
     })
 });

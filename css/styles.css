@@ -5,7 +5,20 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 50px;
+    gap: 20px;
+}
+
+.board {
+    width: 40%;
+    height: 200px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    outline: none;
+}
+
+.clue {
+    font-size: large;
 }
 
 .keyboard {
